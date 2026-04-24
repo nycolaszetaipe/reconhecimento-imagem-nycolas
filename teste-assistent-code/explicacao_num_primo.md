@@ -1,39 +1,112 @@
-# Explicação do código Python para verificar número primo
+# ExplicaÃ§Ã£o do CÃ³digo Python para Verificar NÃºmero Primo
 
-A função `is_prime(n)` recebe um número inteiro `n` e retorna `True` se o número for primo, ou `False` caso contrário.
+Este documento explica o funcionamento da funÃ§Ã£o `is_prime(number)` implementada em Python, que verifica se um nÃºmero inteiro Ã© primo.
 
-## Como funciona
+## O que Ã© um NÃºmero Primo?
 
-1. `if n <= 1:`
-   - Números menores ou iguais a 1 não são considerados primos.
-   - Nesse caso, a função retorna `False`.
+Um nÃºmero primo Ã© um nÃºmero natural maior que 1 que possui apenas dois divisores positivos distintos: 1 e ele mesmo. Exemplos: 2, 3, 5, 7, 11, etc.
 
-2. `if n <= 3:`
-   - Os números 2 e 3 são primos.
-   - Se `n` for 2 ou 3, a função retorna `True`.
+## Estrutura da FunÃ§Ã£o
 
-3. `if n % 2 == 0 or n % 3 == 0:`
-   - Se `n` for divisível por 2 ou por 3, então não é primo.
-   - A função retorna `False` para esses casos.
+A funÃ§Ã£o `is_prime(number)` segue uma abordagem eficiente baseada no algoritmo de verificaÃ§Ã£o de primalidade, otimizado para eliminar candidatos desnecessÃ¡rios.
 
-4. O laço `while i * i <= n:`
-   - O valor de `i` começa em 5.
-   - A verificação usa `i * i <= n` porque, se nenhum divisor for encontrado até a raiz quadrada de `n`, então `n` é primo.
+### 1. ValidaÃ§Ã£o de Entrada
 
-5. `if n % i == 0 or n % (i + 2) == 0:`
-   - O algoritmo testa divisores do tipo `i` e `i + 2`.
-   - Isso cobre combinações de números da forma 6k - 1 e 6k + 1, que são os únicos candidatos possíveis além de 2 e 3.
+```python
+if not isinstance(number, int):
+    raise TypeError("O input deve ser um inteiro.")
 
-6. `i += 6`
-   - Após testar `i` e `i + 2`, o valor de `i` avança de 6 em 6.
-   - Isso evita testar números que já foram excluídos por serem múltiplos de 2 ou 3.
+if number < 0:
+    raise ValueError("O nÃºmero deve ser nÃ£o-negativo.")
+```
 
-7. `return True`
-   - Se nenhum divisor for encontrado até a raiz quadrada de `n`, a função conclui que `n` é primo.
+- **PropÃ³sito**: Garante que o input seja vÃ¡lido antes de prosseguir.
+- **Por que?**: Evita erros inesperados e melhora a robustez do cÃ³digo.
 
-## Resumo
+### 2. Casos Especiais
 
-- A função trata casos especiais de forma rápida: números menores ou iguais a 1, e os primeiros primos 2 e 3.
-- Em seguida, descarta múltiplos de 2 e 3.
-- Por fim, verifica apenas os candidatos que podem ser primos, usando um passo de 6 em 6.
-- Isso torna a função eficiente e correta para verificar primalidade de inteiros positivos.
+```python
+if number <= 1:
+    return False
+
+if number <= 3:
+    return True
+```
+
+- **NÃºmeros â‰¤ 1**: NÃ£o sÃ£o primos por definiÃ§Ã£o.
+- **2 e 3**: SÃ£o os Ãºnicos primos pares e Ã­mpares consecutivos, tratados diretamente.
+
+### 3. EliminaÃ§Ã£o de MÃºltiplos de 2 e 3
+
+```python
+if number % 2 == 0 or number % 3 == 0:
+    return False
+```
+
+- **LÃ³gica**: Qualquer nÃºmero divisÃ­vel por 2 ou 3 (exceto 2 e 3) nÃ£o Ã© primo.
+- **EficiÃªncia**: Remove rapidamente a maioria dos candidatos compostos.
+
+### 4. VerificaÃ§Ã£o de Divisores Potenciais
+
+```python
+divisor = 5
+while divisor * divisor <= number:
+    if number % divisor == 0 or number % (divisor + 2) == 0:
+        return False
+    divisor += 6
+```
+
+- **Algoritmo**: Testa apenas nÃºmeros da forma 6k Â± 1 (como 5, 7, 11, 13, etc.).
+- **RazÃ£o**: Todos os primos maiores que 3 podem ser expressos nessa forma.
+- **OtimizaÃ§Ã£o**: Incrementa o divisor em 6 para pular mÃºltiplos de 2 e 3.
+- **CondiÃ§Ã£o de parada**: `divisor * divisor <= number` (atÃ© a raiz quadrada).
+
+### 5. ConclusÃ£o
+
+```python
+return True
+```
+
+- Se nenhum divisor for encontrado, o nÃºmero Ã© primo.
+
+## Exemplo de ExecuÃ§Ã£o
+
+```python
+if __name__ == "__main__":
+    test_numbers = [1, 2, 3, 4, 17, 18, 19, 20, 23, 29, 30]
+    for num in test_numbers:
+        result = is_prime(num)
+        print(f"{num} Ã© primo? {result}")
+```
+
+SaÃ­da esperada:
+```
+1 Ã© primo? False
+2 Ã© primo? True
+3 Ã© primo? True
+4 Ã© primo? False
+17 Ã© primo? True
+18 Ã© primo? False
+19 Ã© primo? True
+20 Ã© primo? False
+23 Ã© primo? True
+29 Ã© primo? True
+30 Ã© primo? False
+```
+
+## Complexidade e EficiÃªncia
+
+- **Tempo**: O(âˆšn), onde n Ã© o nÃºmero testado.
+- **EspaÃ§o**: O(1), constante.
+- **Vantagens**: Eficiente para nÃºmeros grandes, evita verificaÃ§Ãµes desnecessÃ¡rias.
+
+## Boas PrÃ¡ticas Aplicadas (Clean Code)
+
+- **Nomes descritivos**: `number` em vez de `n`, `divisor` em vez de `i`.
+- **Docstring completa**: Inclui descriÃ§Ã£o, argumentos, retornos, exceÃ§Ãµes e exemplos.
+- **Tratamento de erros**: ValidaÃ§Ã£o de entrada com exceÃ§Ãµes apropriadas.
+- **ComentÃ¡rios**: Explicam a lÃ³gica sem ser redundante.
+- **Legibilidade**: CÃ³digo estruturado e fÃ¡cil de seguir.
+- **Testes**: Bloco `if __name__ == "__main__"` para demonstraÃ§Ã£o.
+
+Esta implementaÃ§Ã£o Ã© robusta, eficiente e segue princÃ­pios de cÃ³digo limpo.
