@@ -1,92 +1,75 @@
-# Explicação do Código Python: Cálculo de Estatísticas Básicas
+# Explicação do Código Python Refatorado: Cálculo de Estatísticas Básicas
 
-Este documento explica linha a linha o código presente no arquivo `refatoracao.py`, que implementa uma função para calcular o total, a média, o maior e o menor valor de uma lista de números.
+Este documento explica linha a linha o código refatorado presente no arquivo `refatoracao.py`, que implementa uma função para calcular o total, a média, o maior e o menor valor de uma lista de números, seguindo boas práticas de Clean Code.
 
-## Visão Geral do Código
+## Visão Geral do Código Refatorado
 
-O código define uma função `c(l)` que recebe uma lista `l` de números e retorna quatro valores: o total da soma, a média, o maior e o menor valor. Em seguida, há um exemplo de uso com uma lista de números e impressão dos resultados.
+O código define uma função `calculate_list_statistics(numbers)` que recebe uma lista `numbers` de números e retorna quatro valores: o total da soma, a média, o maior e o menor valor. Inclui validação de entrada e usa funções built-in para eficiência. Em seguida, há um exemplo de uso com uma lista de números e impressão dos resultados usando f-strings.
 
 ## Explicação Linha a Linha
 
 ### Definição da Função
 ```python
-def c(l):
+def calculate_list_statistics(numbers):
 ```
-- **Linha 1**: Define uma função chamada `c` que recebe um parâmetro `l` (provavelmente uma lista). O nome da função é pouco descritivo; seria melhor algo como `calculate_statistics`.
+- **Linha 1**: Define uma função chamada `calculate_list_statistics` que recebe um parâmetro `numbers` (uma lista de números). O nome é descritivo e segue convenções de nomenclatura (snake_case).
 
-### Inicialização do Total
+### Validação de Entrada
 ```python
-    t=0
+    if not numbers:
+        raise ValueError("A lista não pode estar vazia.")
 ```
-- **Linha 2**: Inicializa uma variável `t` com 0. Esta variável será usada para acumular a soma dos elementos da lista.
+- **Linha 2-3**: Verifica se a lista está vazia. Se estiver, lança um erro `ValueError` para evitar divisão por zero na média. Isso melhora a robustez do código.
 
-### Loop para Calcular a Soma
+### Cálculo do Total
 ```python
-    for i in range(len(l)):
-        t=t+l[i]
+    total = sum(numbers)
 ```
-- **Linha 3**: Inicia um loop `for` que itera sobre os índices da lista `l` (de 0 até `len(l)-1`).
-- **Linha 4**: Em cada iteração, adiciona o valor do elemento `l[i]` à variável `t`. Isso calcula a soma total dos elementos.
+- **Linha 4**: Calcula o total usando a função built-in `sum()`, que é eficiente e legível.
 
 ### Cálculo da Média
 ```python
-    m=t/len(l)
+    average = total / len(numbers)
 ```
-- **Linha 5**: Calcula a média `m` dividindo a soma total `t` pelo número de elementos na lista `len(l)`.
+- **Linha 5**: Calcula a média dividindo o total pelo número de elementos.
 
-### Inicialização do Máximo e Mínimo
+### Cálculo do Máximo e Mínimo
 ```python
-    mx=l[0]
-    mn=l[0]
+    maximum = max(numbers)
+    minimum = min(numbers)
 ```
-- **Linha 6**: Inicializa `mx` (máximo) com o primeiro elemento da lista `l[0]`.
-- **Linha 7**: Inicializa `mn` (mínimo) com o primeiro elemento da lista `l[0]`.
-
-### Loop para Encontrar Máximo e Mínimo
-```python
-    for i in range(len(l)):
-        if l[i]>mx:
-            mx=l[i]
-        if l[i]<mn:
-            mn=l[i]
-```
-- **Linha 8**: Inicia outro loop `for` que itera sobre os índices da lista.
-- **Linha 9-10**: Verifica se o elemento atual `l[i]` é maior que `mx`. Se sim, atualiza `mx` com esse valor.
-- **Linha 11-12**: Verifica se o elemento atual `l[i]` é menor que `mn`. Se sim, atualiza `mn` com esse valor.
+- **Linha 6-7**: Usa funções built-in `max()` e `min()` para encontrar o maior e menor valor, de forma eficiente e clara.
 
 ### Retorno dos Valores
 ```python
-    return t,m,mx,mn
+    return total, average, maximum, minimum
 ```
-- **Linha 13**: Retorna uma tupla com os quatro valores calculados: total (`t`), média (`m`), máximo (`mx`) e mínimo (`mn`).
+- **Linha 8**: Retorna uma tupla com os quatro valores calculados: total, média, máximo e mínimo.
 
 ### Definição da Lista de Exemplo
 ```python
-x=[23,7,45,2,67,12,89,34,56,11]
+numbers = [23, 7, 45, 2, 67, 12, 89, 34, 56, 11]
 ```
-- **Linha 14**: Define uma lista `x` com 10 números inteiros para teste.
+- **Linha 9**: Define uma lista `numbers` com 10 números inteiros para teste. O nome é descritivo.
 
 ### Chamada da Função
 ```python
-a,b,c2,d=c(x)
+total, average, maximum, minimum = calculate_list_statistics(numbers)
 ```
-- **Linha 15**: Chama a função `c` passando a lista `x` e desempacota os valores retornados em quatro variáveis: `a` (total), `b` (média), `c2` (máximo), `d` (mínimo). Nota: `c2` é usado para evitar conflito com o nome da função `c`.
+- **Linha 10**: Chama a função passando a lista `numbers` e desempacota os valores retornados em variáveis com nomes descritivos.
 
 ### Impressão dos Resultados
 ```python
-print("total:",a)
-print("media:",b)
-print("maior:",c2)
-print("menor:",d)
+print(f"Total: {total}")
+print(f"Média: {average}")
+print(f"Maior: {maximum}")
+print(f"Menor: {minimum}")
 ```
-- **Linha 16**: Imprime o total.
-- **Linha 17**: Imprime a média.
-- **Linha 18**: Imprime o maior valor.
-- **Linha 19**: Imprime o menor valor.
+- **Linha 11-14**: Imprime os resultados usando f-strings para formatação clara e moderna.
 
 ## Exemplo de Execução
 
-Para a lista `x = [23, 7, 45, 2, 67, 12, 89, 34, 56, 11]`:
+Para a lista `numbers = [23, 7, 45, 2, 67, 12, 89, 34, 56, 11]`:
 
 - **Total**: 23 + 7 + 45 + 2 + 67 + 12 + 89 + 34 + 56 + 11 = 346
 - **Média**: 346 / 10 = 34.6
@@ -95,18 +78,19 @@ Para a lista `x = [23, 7, 45, 2, 67, 12, 89, 34, 56, 11]`:
 
 Saída esperada:
 ```
-total: 346
-media: 34.6
-maior: 89
-menor: 2
+Total: 346
+Média: 34.6
+Maior: 89
+Menor: 2
 ```
 
-## Observações e Melhorias
+## Melhorias Aplicadas (Clean Code)
 
-- **Nomes de Variáveis**: Os nomes são muito curtos e pouco descritivos (ex.: `t`, `m`, `mx`, `mn`). Em Clean Code, seria melhor usar nomes como `total`, `average`, `maximum`, `minimum`.
-- **Função**: O nome `c` não é claro. Sugestão: `calculate_list_stats`.
-- **Eficiência**: O código é funcional, mas para listas grandes, poderia ser otimizado usando funções built-in como `sum()`, `max()`, `min()`.
-- **Tratamento de Erros**: Não há verificação se a lista está vazia, o que causaria erro de divisão por zero na média.
-- **Tipo de Dados**: Assume que a lista contém números; não trata casos de tipos mistos.
+- **Nomes Descritivos**: Função `calculate_list_statistics`, parâmetro `numbers`, variáveis `total`, `average`, `maximum`, `minimum`.
+- **Eficiência**: Uso de `sum()`, `max()`, `min()` em vez de loops manuais.
+- **Tratamento de Erros**: Validação para lista vazia.
+- **Legibilidade**: F-strings para prints, comentários implícitos nos nomes.
+- **Convenções**: Segue PEP 8 (nomes em snake_case, espaços adequados).
+- **Robustez**: Evita erros de runtime.
 
-Este código demonstra conceitos básicos de loops, condicionais e funções em Python.
+Este código é mais legível, eficiente e mantém os conceitos básicos de Python.

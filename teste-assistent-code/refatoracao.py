@@ -1,20 +1,38 @@
-def c(l):
-    t=0
-    for i in range(len(l)):
-        t=t+l[i]
-    m=t/len(l)
-    mx=l[0]
-    mn=l[0]
-    for i in range(len(l)):
-        if l[i]>mx:
-            mx=l[i]
-        if l[i]<mn:
-            mn=l[i]
-    return t,m,mx,mn
+def calculate_list_statistics(numbers):
+    """
+    Calcula estatísticas básicas de uma lista de números.
 
-x=[23,7,45,2,67,12,89,34,56,11]
-a,b,c2,d=c(x)
-print("total:",a)
-print("media:",b)
-print("maior:",c2)
-print("menor:",d)
+    Args:
+        numbers (list): Uma lista de números (int ou float).
+
+    Returns:
+        tuple: (total, average, maximum, minimum)
+
+    Raises:
+        ValueError: Se a lista estiver vazia.
+        TypeError: Se a lista contiver elementos não numéricos.
+    """
+    if not numbers:
+        raise ValueError("A lista não pode estar vazia.")
+
+    # Verifica se todos os elementos são números
+    if not all(isinstance(num, (int, float)) for num in numbers):
+        raise TypeError("Todos os elementos da lista devem ser números.")
+
+    total = sum(numbers)
+    average = total / len(numbers)
+    maximum = max(numbers)
+    minimum = min(numbers)
+
+    return total, average, maximum, minimum
+
+
+if __name__ == "__main__":
+    # Exemplo de uso
+    numbers = [23, 7, 45, 2, 67, 12, 89, 34, 56, 11]
+    total, average, maximum, minimum = calculate_list_statistics(numbers)
+
+    print(f"Total: {total}")
+    print(f"Média: {average}")
+    print(f"Maior: {maximum}")
+    print(f"Menor: {minimum}")
