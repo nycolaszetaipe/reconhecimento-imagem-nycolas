@@ -1,4 +1,4 @@
-# ExplicaÁ„o de debug.py
+Ôªø# Explica√ß√£o de debug.py
 
 Este arquivo documenta os erros encontrados em `debug.py` e explica por que cada problema ocorria.
 
@@ -6,47 +6,47 @@ Este arquivo documenta os erros encontrados em `debug.py` e explica por que cada
 
 Linha original:
 ```python
-item1 = float(input(PreÁo do item 1? ))
+item1 = float(input(Pre√ßo do item 1? ))
 ```
 
-- Causa: o texto do prompt n„o estava entre aspas.
-- Resultado: `SyntaxError` porque o Python interpretou `PreÁo` como um nome de vari·vel.
-- CorreÁ„o: colocar a string entre aspas:
+- Causa: o texto do prompt n√£o estava entre aspas.
+- Resultado: `SyntaxError` porque o Python interpretou `Pre√ßo` como um nome de vari√°vel.
+- Corre√ß√£o: colocar a string entre aspas:
 ```python
-item1 = float(input("PreÁo do item 1? "))
+item1 = float(input("Pre√ßo do item 1? "))
 ```
 
-## 2. Convers„o de tipo incorreta do desconto
+## 2. Convers√£o de tipo incorreta do desconto
 
 Linha original:
 ```python
-desconto_cupom = (input("VocÍ tem um cupom de desconto? (Digite o percentual ou 0): "))
+desconto_cupom = (input("Voc√™ tem um cupom de desconto? (Digite o percentual ou 0): "))
 desconto = subtotal * (desconto_cupom / 100)
 ```
 
 - Causa: `input()` retorna uma string.
 - Resultado: `TypeError` ao tentar dividir a string por 100.
-- CorreÁ„o: converter o valor para n˙mero, por exemplo `float`:
+- Corre√ß√£o: converter o valor para n√∫mero, por exemplo `float`:
 ```python
-desconto_percentual = float(input("VocÍ tem um cupom de desconto? (Digite o percentual ou 0): "))
+desconto_percentual = float(input("Voc√™ tem um cupom de desconto? (Digite o percentual ou 0): "))
 desconto = subtotal * (desconto_percentual / 100)
 ```
 
-## 3. FormataÁ„o de string incorreta na impress„o
+## 3. Formata√ß√£o de string incorreta na impress√£o
 
 Linha original:
 ```python
 print(" Item 2:        R$ {total_item2:.2f}")
 ```
 
-- Causa: a string n„o era uma f-string.
+- Causa: a string n√£o era uma f-string.
 - Resultado: foi exibido literalmente `{total_item2:.2f}` em vez do valor formatado.
-- CorreÁ„o: usar f-string corretamente:
+- Corre√ß√£o: usar f-string corretamente:
 ```python
 print(f" Item 2:        R$ {total_item2:.2f}")
 ```
 
-## 4. Erro de indentaÁ„o no bloco condicional
+## 4. Erro de indenta√ß√£o no bloco condicional
 
 Linha original:
 ```python
@@ -54,9 +54,9 @@ if desconto_cupom > 0:
 print(f" Desconto ({desconto_cupom:.0f}%): -R$ {desconto:.2f}")
 ```
 
-- Causa: o `print()` dentro do `if` n„o estava indentado.
+- Causa: o `print()` dentro do `if` n√£o estava indentado.
 - Resultado: `IndentationError` no Python.
-- CorreÁ„o: identar o bloco de cÛdigo dentro do `if`:
+- Corre√ß√£o: identar o bloco de c√≥digo dentro do `if`:
 ```python
 if desconto_percentual > 0:
     print(f" Desconto ({desconto_percentual:.0f}%): -R$ {desconto:.2f}")
@@ -64,19 +64,19 @@ if desconto_percentual > 0:
 
 ## 5. Melhoria de legibilidade e robustez
 
-No cÛdigo corrigido, foram aplicadas as seguintes melhorias:
+No c√≥digo corrigido, foram aplicadas as seguintes melhorias:
 
-- FunÁ„o `format_currency(value)` para formatar valores monet·rios de forma consistente.
-- FunÁ„o `main()` para organizar o fluxo do programa.
-- Convers„o explÌcita de `input()` para `int` e `float`.
-- Uso de nomes de vari·veis mais claros: `desconto_percentual` em vez de `desconto_cupom`.
-- Impress„o com `f-strings` para exibir valores formatados.
-- Mantido o c·lculo final:
+- Fun√ß√£o `format_currency(value)` para formatar valores monet√°rios de forma consistente.
+- Fun√ß√£o `main()` para organizar o fluxo do programa.
+- Convers√£o expl√≠cita de `input()` para `int` e `float`.
+- Uso de nomes de vari√°veis mais claros: `desconto_percentual` em vez de `desconto_cupom`.
+- Impress√£o com `f-strings` para exibir valores formatados.
+- Mantido o c√°lculo final:
   - `subtotal = total_item1 + total_item2 + total_item3`
   - `imposto = subtotal * 0.10`
   - `total = subtotal + imposto - desconto`
 
-## CÛdigo corrigido
+## C√≥digo corrigido
 
 ```python
 def format_currency(value):
@@ -84,16 +84,16 @@ def format_currency(value):
 
 
 def main():
-    cliente = input("Qual È seu nome? ")
+    cliente = input("Qual √© seu nome? ")
 
     qtd1 = int(input("Quantidade do item 1: "))
-    item1 = float(input("PreÁo do item 1? "))
+    item1 = float(input("Pre√ßo do item 1? "))
 
     qtd2 = int(input("Quantidade do item 2: "))
-    item2 = float(input("PreÁo do item 2? "))
+    item2 = float(input("Pre√ßo do item 2? "))
 
     qtd3 = int(input("Quantidade do item 3: "))
-    item3 = float(input("PreÁo do item 3? "))
+    item3 = float(input("Pre√ßo do item 3? "))
 
     total_item1 = qtd1 * item1
     total_item2 = qtd2 * item2
@@ -102,7 +102,7 @@ def main():
     subtotal = total_item1 + total_item2 + total_item3
     imposto = subtotal * 0.10
 
-    desconto_percentual = float(input("VocÍ tem um cupom de desconto? (Digite o percentual ou 0): "))
+    desconto_percentual = float(input("Voc√™ tem um cupom de desconto? (Digite o percentual ou 0): "))
     desconto = subtotal * (desconto_percentual / 100)
 
     total = subtotal + imposto - desconto
@@ -130,12 +130,13 @@ if __name__ == "__main__":
     main()
 ```
 
-## Conclus„o
+## Conclus√£o
 
 Os erros originais eram causados por:
 - sintaxe incorreta no prompt de `input()`;
-- falta de convers„o de tipos em `desconto_cupom`;
-- uso incorreto de formataÁ„o de strings;
-- indentaÁ„o inv·lida no bloco `if`.
+- falta de convers√£o de tipos em `desconto_cupom`;
+- uso incorreto de formata√ß√£o de strings;
+- indenta√ß√£o inv√°lida no bloco `if`.
 
-ApÛs as correÁıes, o programa est· funcional e legÌvel.
+Ap√≥s as corre√ß√µes, o programa est√° funcional e leg√≠vel.
+
