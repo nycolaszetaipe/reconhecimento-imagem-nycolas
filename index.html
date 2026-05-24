@@ -75,13 +75,25 @@
 
     let model, webcam, labelContainer, maxPredictions;
     let currentFacingMode = "user"; // "user" = frontal, "environment" = traseira
-    let isRunning = false;
+    let animFrameId = null;
 
     // Função auxiliar para criar a webcam com um facingMode específico
     async function setupWebcam(facingMode) {
-        // Para de qualquer webcam anterior
+        // Para o loop de animação antes de destruir a webcam
+        if (animFrameId) {
+            cancelAnimationFrame(animFrameId);
+            animFrameId = null;
+        }
+
+        // Para e limpa a webcam anterior completamente
         if (webcam) {
-            webcam.stop();
+            try { webcam.stop(); } catch(e) {}
+            // Libera as trilhas de mídia do stream interno
+            if (webcam.webcam && webcam.webcam.srcObject) {
+                const tracks = webcam.webcam.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+            webcam = null;
         }
 
         const width = 400;
@@ -94,7 +106,6 @@
         webcam = new tmImage.Webcam(width, height, flip);
         
         // Configura a webcam com o facingMode desejado
-        // O método setup() aceita um objeto MediaTrackConstraints
         await webcam.setup({
             facingMode: facingMode,
             width: width,
@@ -104,10 +115,14 @@
         await webcam.play();
         
         // Atualiza o canvas no DOM
-        document.getElementById("webcam-container").innerHTML = "";
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        const container = document.getElementById("webcam-container");
+        container.innerHTML = "";
+        container.appendChild(webcam.canvas);
         
         currentFacingMode = facingMode;
+        
+        // Reinicia o loop de animação
+        animFrameId = window.requestAnimationFrame(loop);
     }
 
     async function init() {
@@ -128,9 +143,6 @@
 
             // Configuração da Webcam (inicia com frontal)
             await setupWebcam("user");
-            
-            isRunning = true;
-            window.requestAnimationFrame(loop);
 
             // Mostra o botão de alternar câmera
             document.getElementById("btn-switch-camera").style.display = "inline-block";
@@ -211,7 +223,7 @@
     async function loop() {
         webcam.update(); 
         await predict();
-        window.requestAnimationFrame(loop);
+        animFrameId = window.requestAnimationFrame(loop);
     }
 
     async function predict() {
