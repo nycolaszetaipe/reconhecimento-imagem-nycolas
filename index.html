@@ -49,9 +49,14 @@
             <h1 class="display-5 fw-bold mb-3">Reconhecimento de Imagem</h1>
             <p class="text-muted mb-4">Clique no botão abaixo para ativar sua câmera e iniciar a predição em tempo real.</p>
             
-            <button type="button" class="btn btn-primary btn-lg px-5 py-3 shadow-sm" onclick="init()">
-                <i class="bi bi-camera-video-fill"></i> Iniciar Câmera
-            </button>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button type="button" class="btn btn-primary btn-lg px-5 py-3 shadow-sm" onclick="init()">
+                    <i class="bi bi-camera-video-fill"></i> Iniciar Câmera
+                </button>
+                <button type="button" id="btn-switch-camera" class="btn btn-outline-secondary btn-lg px-4 py-3 shadow-sm" onclick="switchCamera()" style="display:none;">
+                    <i class="bi bi-arrow-repeat"></i> Alternar Câmera
+                </button>
+            </div>
 
             <div id="webcam-container" class="mt-4 mb-4"></div>
 
@@ -69,6 +74,38 @@
     const URL = "https://teachablemachine.withgoogle.com/models/eebOG_bV9/";
 
     let model, webcam, labelContainer, maxPredictions;
+    let currentFacingMode = "user"; // "user" = frontal, "environment" = traseira
+
+    // Função auxiliar para criar a webcam com um facingMode específico
+    async function setupWebcam(facingMode) {
+        // Para de qualquer webcam anterior
+        if (webcam) {
+            webcam.stop();
+        }
+
+        // Cria uma nova webcam com o facingMode desejado
+        // O tmImage.Webcam aceita um objeto de configuração como 4º parâmetro
+        const flip = true;
+        const width = 400;
+        const height = 400;
+        
+        // Usamos a API de mídia diretamente para ter controle sobre facingMode
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: facingMode, width: width, height: height },
+            audio: false
+        });
+
+        webcam = new tmImage.Webcam(width, height, flip);
+        // Substituímos o stream interno da webcam pelo que criamos com facingMode
+        webcam.webcam.srcObject = stream;
+        await webcam.play();
+        
+        // Atualiza o canvas no DOM
+        document.getElementById("webcam-container").innerHTML = "";
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        
+        currentFacingMode = facingMode;
+    }
 
     async function init() {
         const modelURL = URL + "model.json";
@@ -78,16 +115,12 @@
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
 
-        // Configuração da Webcam
-        const flip = true; 
-        webcam = new tmImage.Webcam(400, 400, flip); 
-        await webcam.setup(); 
-        await webcam.play();
+        // Configuração da Webcam (inicia com frontal)
+        await setupWebcam("user");
         window.requestAnimationFrame(loop);
 
-        // Append elementos ao DOM
-        document.getElementById("webcam-container").innerHTML = ""; // Limpa texto anterior
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        // Mostra o botão de alternar câmera
+        document.getElementById("btn-switch-camera").style.display = "inline-block";
         
         labelContainer = document.getElementById("label-container");
         labelContainer.innerHTML = ""; // Limpa o "Aguardando..."
@@ -109,6 +142,12 @@
             `;
             labelContainer.appendChild(classWrapper);
         }
+    }
+
+    async function switchCamera() {
+        // Alterna entre frontal e traseira
+        const newFacingMode = currentFacingMode === "user" ? "environment" : "user";
+        await setupWebcam(newFacingMode);
     }
 
     async function loop() {
