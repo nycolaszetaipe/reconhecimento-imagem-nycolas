@@ -75,6 +75,7 @@
 
     let model, webcam, labelContainer, maxPredictions;
     let currentFacingMode = "user"; // "user" = frontal, "environment" = traseira
+    let isRunning = false;
 
     // Função auxiliar para criar a webcam com um facingMode específico
     async function setupWebcam(facingMode) {
@@ -83,21 +84,23 @@
             webcam.stop();
         }
 
-        // Cria uma nova webcam com o facingMode desejado
-        // O tmImage.Webcam aceita um objeto de configuração como 4º parâmetro
-        const flip = true;
         const width = 400;
         const height = 400;
+        // Câmera frontal: flip=true (espelha para selfie)
+        // Câmera traseira: flip=false (não espelha)
+        const flip = facingMode === "user";
         
-        // Usamos a API de mídia diretamente para ter controle sobre facingMode
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: facingMode, width: width, height: height },
-            audio: false
-        });
-
+        // Cria uma nova instância do tmImage.Webcam
         webcam = new tmImage.Webcam(width, height, flip);
-        // Substituímos o stream interno da webcam pelo que criamos com facingMode
-        webcam.webcam.srcObject = stream;
+        
+        // Configura a webcam com o facingMode desejado
+        // O método setup() aceita um objeto MediaTrackConstraints
+        await webcam.setup({
+            facingMode: facingMode,
+            width: width,
+            height: height
+        });
+        
         await webcam.play();
         
         // Atualiza o canvas no DOM
@@ -108,46 +111,101 @@
     }
 
     async function init() {
-        const modelURL = URL + "model.json";
-        const metadataURL = URL + "metadata.json";
+        try {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
 
-        // Carregar o modelo
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
+            // Feedback visual: mostra que está carregando
+            const labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = '<p class="text-center text-muted m-0">Carregando modelo de IA...</p>';
 
-        // Configuração da Webcam (inicia com frontal)
-        await setupWebcam("user");
-        window.requestAnimationFrame(loop);
+            // Carregar o modelo
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
 
-        // Mostra o botão de alternar câmera
-        document.getElementById("btn-switch-camera").style.display = "inline-block";
-        
-        labelContainer = document.getElementById("label-container");
-        labelContainer.innerHTML = ""; // Limpa o "Aguardando..."
+            // Feedback visual: mostra que está ativando a câmera
+            labelContainer.innerHTML = '<p class="text-center text-muted m-0">Ativando câmera...</p>';
 
-        // Criar as barras dinamicamente baseadas nas classes do modelo
-        for (let i = 0; i < maxPredictions; i++) {
-            const classWrapper = document.createElement("div");
-            classWrapper.className = "mb-3";
-            classWrapper.innerHTML = `
-                <div class="label-name">
-                    <span>${model.getClassLabels()[i]}</span>
-                    <span id="percent-${i}">0%</span>
-                </div>
-                <div class="progress">
-                    <div id="bar-${i}" class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
-                         role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            // Configuração da Webcam (inicia com frontal)
+            await setupWebcam("user");
+            
+            isRunning = true;
+            window.requestAnimationFrame(loop);
+
+            // Mostra o botão de alternar câmera
+            document.getElementById("btn-switch-camera").style.display = "inline-block";
+            
+            // Limpa o container e cria as barras de predição
+            labelContainer.innerHTML = "";
+
+            // Criar as barras dinamicamente baseadas nas classes do modelo
+            for (let i = 0; i < maxPredictions; i++) {
+                const classWrapper = document.createElement("div");
+                classWrapper.className = "mb-3";
+                classWrapper.innerHTML = `
+                    <div class="label-name">
+                        <span>${model.getClassLabels()[i]}</span>
+                        <span id="percent-${i}">0%</span>
                     </div>
+                    <div class="progress">
+                        <div id="bar-${i}" class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                             role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                `;
+                labelContainer.appendChild(classWrapper);
+            }
+        } catch (error) {
+            console.error("Erro ao iniciar:", error);
+            const labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = `
+                <div class="alert alert-danger text-center" role="alert">
+                    <strong>Erro ao iniciar!</strong><br>
+                    ${error.message || "Não foi possível acessar a câmera ou carregar o modelo."}<br>
+                    <small>Verifique se você permitiu o acesso à câmera e tente novamente.</small>
                 </div>
             `;
-            labelContainer.appendChild(classWrapper);
         }
     }
 
     async function switchCamera() {
-        // Alterna entre frontal e traseira
-        const newFacingMode = currentFacingMode === "user" ? "environment" : "user";
-        await setupWebcam(newFacingMode);
+        try {
+            // Feedback visual
+            const labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = '<p class="text-center text-muted m-0">Alternando câmera...</p>';
+            
+            // Alterna entre frontal e traseira
+            const newFacingMode = currentFacingMode === "user" ? "environment" : "user";
+            await setupWebcam(newFacingMode);
+            
+            // Restaura as barras de predição
+            labelContainer.innerHTML = "";
+            for (let i = 0; i < maxPredictions; i++) {
+                const classWrapper = document.createElement("div");
+                classWrapper.className = "mb-3";
+                classWrapper.innerHTML = `
+                    <div class="label-name">
+                        <span>${model.getClassLabels()[i]}</span>
+                        <span id="percent-${i}">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div id="bar-${i}" class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                             role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                `;
+                labelContainer.appendChild(classWrapper);
+            }
+        } catch (error) {
+            console.error("Erro ao alternar câmera:", error);
+            const labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = `
+                <div class="alert alert-warning text-center" role="alert">
+                    <strong>Erro ao alternar câmera!</strong><br>
+                    ${error.message || "Não foi possível acessar a câmera selecionada."}
+                </div>
+            `;
+        }
     }
 
     async function loop() {
