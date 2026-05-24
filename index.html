@@ -75,24 +75,20 @@
 
     let model, webcam, labelContainer, maxPredictions;
     let currentFacingMode = "user"; // "user" = frontal, "environment" = traseira
-    let animFrameId = null;
+    let loopActive = false; // flag que controla se o loop deve continuar
 
     // Função auxiliar para criar a webcam com um facingMode específico
     async function setupWebcam(facingMode) {
-        // Para o loop de animação antes de destruir a webcam
-        if (animFrameId) {
-            cancelAnimationFrame(animFrameId);
-            animFrameId = null;
-        }
+        // Sinaliza para o loop parar antes de destruir a webcam
+        loopActive = false;
+
+        // Aguarda um tick para garantir que o loop em execução perceba a flag
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Para e limpa a webcam anterior completamente
+        // webcam.stop() já para as tracks internamente (vide código-fonte da lib)
         if (webcam) {
             try { webcam.stop(); } catch(e) {}
-            // Libera as trilhas de mídia do stream interno
-            if (webcam.webcam && webcam.webcam.srcObject) {
-                const tracks = webcam.webcam.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-            }
             webcam = null;
         }
 
@@ -106,11 +102,9 @@
         webcam = new tmImage.Webcam(width, height, flip);
         
         // Configura a webcam com o facingMode desejado
-        await webcam.setup({
-            facingMode: facingMode,
-            width: width,
-            height: height
-        });
+        // NOTA: a lib ignora width/height aqui (usa 640 internamente), 
+        // as dimensões do canvas são definidas no construtor acima
+        await webcam.setup({ facingMode: facingMode });
         
         await webcam.play();
         
@@ -121,8 +115,9 @@
         
         currentFacingMode = facingMode;
         
-        // Reinicia o loop de animação
-        animFrameId = window.requestAnimationFrame(loop);
+        // Ativa o loop novamente e inicia
+        loopActive = true;
+        window.requestAnimationFrame(loop);
     }
 
     async function init() {
@@ -221,9 +216,13 @@
     }
 
     async function loop() {
+        // Se loopActive for false, o loop para (câmera está sendo trocada)
+        if (!loopActive) return;
         webcam.update(); 
         await predict();
-        animFrameId = window.requestAnimationFrame(loop);
+        // Verifica novamente após o await, pois a flag pode ter mudado durante predict()
+        if (!loopActive) return;
+        window.requestAnimationFrame(loop);
     }
 
     async function predict() {
